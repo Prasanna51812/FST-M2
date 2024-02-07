@@ -1,0 +1,11 @@
+--Create a table to store results
+
+CREATE TABLE episodeIV (name STRING, line STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' TBLPROPERTIES ("skip.header.line.count"="2");
+
+--Load data into the database using a file on your local system (NOT HDFS)
+
+LOAD DATA LOCAL INPATH '/root/project/EP4.txt' INTO TABLE episodeIV;
+
+
+INSERT  OVERWRITE LOCAL DIRECTORY '/root/hiveProjectOutPut'
+select count(*) from episodeIV where line like '%Luke%';

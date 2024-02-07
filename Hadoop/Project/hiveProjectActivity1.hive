@@ -1,0 +1,12 @@
+DROP TABLE allEpisodes;
+
+--Create a table to store results
+CREATE TABLE allEpisodes (name STRING, line STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' TBLPROPERTIES ("skip.header.line.count"="2");
+
+
+--Load data into the database using a file on your local system (NOT HDFS)
+LOAD DATA LOCAL INPATH '/root/project' INTO TABLE allEpisodes;
+
+
+INSERT  OVERWRITE LOCAL DIRECTORY '/root/hiveProjectOutPut' ROW FORMAT DELIMITED FIELDS TERMINATED BY '/t'
+SELECT name, COUNT(name) AS no_of_dialogue_lines from allEpisodes GROUP BY name ORDER BY no_of_dialogue_lines DESC;
