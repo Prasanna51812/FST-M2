@@ -1,0 +1,171 @@
+root@842063f92b6f:/# vim EmpData.csv
+root@842063f92b6f:/# cat EmpData.csv
+ID,Name,Department,JoinDate,Salary
+1,Ian,Quality Assurance,2021,28113
+2,Beatrice,Tech Support,2021,35330
+3,Vladimir,Human Resources,2020,51445
+4,Whitney,IT,2020,23818
+5,Leslie,Customer Service,2021,59882
+6,Bernard,IT,2021,50330
+7,Mary,Customer Service,2021,26558
+8,Jerome,RnD,2021,45333
+9,Joshua,IT,2021,59538
+10,Keane,Human Resources,2022,46500
+11,Velma,Human Resources,2022,19816
+12,Rogan,Tech Support,2022,27554
+13,Aurelia,RnD,2021,20762
+14,Merrill,Quality Assurance,2021,59660
+15,Blaine,Tech Support,2022,28768
+
+
+root@842063f92b6f:/# hive
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/local/apache-hive-3.1.2-bin/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/local/hadoop-3.3.1/share/hadoop/common/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Hive Session ID = 1956a90f-1afb-4cd2-ab4e-06049ccc8fa6
+
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-3.1.2-bin/lib/hive-common-3.1.2.jar!/hive-log4j2.properties Async: true
+Hive Session ID = 6cedb597-4ae9-4015-b776-8794b20d73b8
+Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+hive> show databases;
+OK
+default
+Time taken: 0.893 seconds, Fetched: 1 row(s)
+
+hive> create database office;
+OK
+Time taken: 0.216 seconds
+hive> use office;
+OK
+Time taken: 0.026 seconds
+
+hive> CREATE TABLE employee
+    > (id INT, name STRING, dept STRING ,yoj INT, salary INT)
+    > ROW FORMAT DELIMITED  FIELDS TERMINATED BY ','
+    > TBLPROPERTIES ("skip.header.line.count"="1");
+OK
+Time taken: 0.766 seconds
+hive> DESCRIBE employee;
+OK
+id                      int
+name                    string
+dept                    string
+yoj                     int
+salary                  int
+Time taken: 0.263 seconds, Fetched: 5 row(s)
+
+hive> LOAD DATA LOCAL INPATH
+    > '/EmpData.csv'
+    > INTO TABLE employee;
+Loading data to table default.employee
+OK
+Time taken: 2.642 seconds
+
+
+
+
+hive> SELECT * FROM employee;
+OK
+1       Ian     Quality Assurance       2021    28113
+2       Beatrice        Tech Support    2021    35330
+3       Vladimir        Human Resources 2020    51445
+4       Whitney IT      2020    23818
+5       Leslie  Customer Service        2021    59882
+6       Bernard IT      2021    50330
+7       Mary    Customer Service        2021    26558
+8       Jerome  RnD     2021    45333
+9       Joshua  IT      2021    59538
+10      Keane   Human Resources 2022    46500
+11      Velma   Human Resources 2022    19816
+12      Rogan   Tech Support    2022    27554
+13      Aurelia RnD     2021    20762
+14      Merrill Quality Assurance       2021    59660
+15      Blaine  Tech Support    2022    28768
+Time taken: 3.541 seconds, Fetched: 15 row(s)
+
+
+
+hive> SELECT COUNT(*) FROM employee;
+Query ID = root_20231220072157_7513849f-9340-4ee9-814d-05b46588aa13
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1702620027182_0005, Tracking URL = http://842063f92b6f:8088/proxy/application_1702620027182_0005/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1702620027182_0005
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2023-12-20 07:22:10,315 Stage-1 map = 0%,  reduce = 0%
+2023-12-20 07:22:18,606 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 3.39 sec
+2023-12-20 07:22:23,751 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 6.18 sec
+MapReduce Total cumulative CPU time: 6 seconds 180 msec
+Ended Job = job_1702620027182_0005
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 6.18 sec   HDFS Read: 13116 HDFS Write: 102 SUCCESS
+Total MapReduce CPU Time Spent: 6 seconds 180 msec
+OK
+15
+Time taken: 26.949 seconds, Fetched: 1 row(s)
+
+
+
+hive> SELECT  id, name FROM employee;
+OK
+1       Ian
+2       Beatrice
+3       Vladimir
+4       Whitney
+5       Leslie
+6       Bernard
+7       Mary
+8       Jerome
+9       Joshua
+10      Keane
+11      Velma
+12      Rogan
+13      Aurelia
+14      Merrill
+15      Blaine
+Time taken: 0.157 seconds, Fetched: 15 row(s)
+hive> SELECT * FROM employee WHERE salary > 30000;
+OK
+2       Beatrice        Tech Support    2021    35330
+3       Vladimir        Human Resources 2020    51445
+5       Leslie  Customer Service        2021    59882
+6       Bernard IT      2021    50330
+8       Jerome  RnD     2021    45333
+9       Joshua  IT      2021    59538
+10      Keane   Human Resources 2022    46500
+14      Merrill Quality Assurance       2021    59660
+Time taken: 0.179 seconds, Fetched: 8 row(s)
+hive> SELECT count(*) FROM employee;
+Query ID = root_20231220072616_65db9eed-2ff5-461d-a6ea-f07195358388
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1702620027182_0006, Tracking URL = http://842063f92b6f:8088/proxy/application_1702620027182_0006/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1702620027182_0006
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2023-12-20 07:26:26,740 Stage-1 map = 0%,  reduce = 0%
+2023-12-20 07:26:32,932 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 4.53 sec
+2023-12-20 07:26:41,280 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 8.54 sec
+MapReduce Total cumulative CPU time: 8 seconds 540 msec
+Ended Job = job_1702620027182_0006
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 8.54 sec   HDFS Read: 13227 HDFS Write: 102 SUCCESS
+Total MapReduce CPU Time Spent: 8 seconds 540 msec
+OK
+15
+Time taken: 26.054 seconds, Fetched: 1 row(s)

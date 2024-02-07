@@ -1,0 +1,107 @@
+root@842063f92b6f:/# hive
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/usr/local/apache-hive-3.1.2-bin/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/usr/local/hadoop-3.3.1/share/hadoop/common/lib/slf4j-log4j12-1.7.30.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Hive Session ID = 5b493f2d-d92a-438e-9054-f03609a912df
+
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-3.1.2-bin/lib/hive-common-3.1.2.jar!/hive-log4j2.properties Async: true
+Hive Session ID = ad1561b9-4106-4bd4-91de-e6702314d1de
+Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+
+hive> CREATE TABLE files(line STRING);
+OK
+Time taken: 1.867 seconds
+
+hive> LOAD DATA LOCAL INPATH '/root/input.txt' INTO TABLE files;
+Loading data to table default.files
+OK
+Time taken: 1.485 seconds
+
+hive> SELECT * FROM files;
+OK
+this is an example line
+this is automation script
+this is automation script for hdfs command
+Time taken: 1.987 seconds, Fetched: 3 row(s)
+
+hive> dfs -ls -R /user/hive;
+drwxr-xr-x   - root supergroup          0 2023-12-15 06:12 /user/hive/warehouse
+drwxr-xr-x   - root supergroup          0 2023-12-15 06:19 /user/hive/warehouse/files
+-rw-r--r--   1 root supergroup         94 2023-12-15 06:19 /user/hive/warehouse/files/input.txt
+
+hive> CREATE TABLE word_counts AS
+    > SELECT word, count(1) AS count FROM
+    > (SELECT explode(split(line, ' ')) AS word FROM files) w
+    > GROUP BY word
+    > ORDER BY word;
+Query ID = root_20231215065646_e9d37b3c-7300-465e-a551-7b7bb4a29d06
+Total jobs = 2
+Launching Job 1 out of 2
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1702620027182_0001, Tracking URL = http://842063f92b6f:8088/proxy/application_1702620027182_0001/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1702620027182_0001
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2023-12-15 06:57:01,013 Stage-1 map = 0%,  reduce = 0%
+2023-12-15 06:57:08,392 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 4.4 sec
+2023-12-15 06:57:14,630 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 6.84 sec
+MapReduce Total cumulative CPU time: 6 seconds 840 msec
+Ended Job = job_1702620027182_0001
+Launching Job 2 out of 2
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1702620027182_0002, Tracking URL = http://842063f92b6f:8088/proxy/application_1702620027182_0002/
+Kill Command = /usr/local/hadoop/bin/mapred job  -kill job_1702620027182_0002
+Hadoop job information for Stage-2: number of mappers: 1; number of reducers: 1
+2023-12-15 06:57:30,319 Stage-2 map = 0%,  reduce = 0%
+2023-12-15 06:57:35,567 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 2.46 sec
+2023-12-15 06:57:42,858 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 5.74 sec
+MapReduce Total cumulative CPU time: 5 seconds 740 msec
+Ended Job = job_1702620027182_0002
+Moving data to directory hdfs://842063f92b6f:9000/user/hive/warehouse/word_counts
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 6.84 sec   HDFS Read: 8241 HDFS Write: 354 SUCCESS
+Stage-Stage-2: Map: 1  Reduce: 1   Cumulative CPU: 5.74 sec   HDFS Read: 7485 HDFS Write: 157 SUCCESS
+Total MapReduce CPU Time Spent: 12 seconds 580 msec
+OK
+Time taken: 57.889 seconds
+hive> SELECT * FROM wordcounts;
+FAILED: SemanticException [Error 10001]: Line 1:14 Table not found 'wordcounts'
+hive> SELECT * FROM w;
+FAILED: SemanticException [Error 10001]: Line 1:14 Table not found 'w'
+hive> SELECT * FROM word_counts;
+OK
+        1
+an      1
+automation      2
+command 1
+example 1
+for     1
+hdfs    1
+is      3
+line    1
+script  2
+this    3
+Time taken: 0.228 seconds, Fetched: 11 row(s)
+
+
+
+
+++++++++++++++++++++++++++
+
+root@842063f92b6f:/# cd root/
+root@842063f92b6f:~# vim activity4.hive
+root@842063f92b6f:~# cd /
+root@842063f92b6f:/# hive -f root/activity4.hive
